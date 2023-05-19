@@ -1,6 +1,6 @@
 import xlrd
 import numpy as np 
-from numpy import sin,cos,pi,sqrt
+from numpy import sin,cos,pi,sqrt,log
 import matplotlib.pyplot as plt 
 import scipy.stats as scis
 
@@ -21,6 +21,28 @@ plt.rcParams['axes.spines.top'] = False
 plt.scatter(t,y,c='r',s=0.1)
 plt.ylabel('$y(m)$')
 plt.xlabel('$t(s)$')
+
+######################################################################
+y = np.copy(-np.array(y))
+plt.figure()
+P = np.polyfit(log(abs(np.array(t[3:162]))),log(abs(np.array(y[3:162])-y[0])),1)
+x = np.linspace(log(t[3]),log(t[162]))
+plt.plot(x,np.polyval(P,x),c='b',alpha=1)
+plt.title('Representació logarítmica')
+plt.rcParams['axes.spines.right'] = False
+plt.rcParams['axes.spines.top'] = False
+plt.scatter(log(abs(np.array(t[3:162]))),log(abs(np.array(y[3:162])-y[0])),c='r',s=1)
+plt.ylabel('$\log(y(m))$')
+plt.xlabel('$\log(t(s))$')
+result = scis.linregress(log(abs(np.array(t[3:162]))),log(abs(np.array(y[3:162])-y[0])))
+plt.annotate('$y=1.95695x - 3.875$',(1,-2.65))
+plt.annotate('$R² = 0.9817$',(1,-3))
+
+print('y = (',round(result.slope,5),' ± ',round(result.stderr,5),')x + (',round(result.intercept,3),' ± ',round(result.intercept_stderr,3),')',sep='')
+print('R² = ',round(result.rvalue**2,4),sep='')
+
+plt.show()
+y = -np.array(y)
 
 ######################################################################
 
@@ -150,15 +172,16 @@ result3 = scis.linregress(t[952:],v[952:])
 plt.annotate('$y = (-0.02625 ± 0.00014)x + (1.009 ± 0.005)$',(34,0.2)) 
 plt.annotate('$R² = 0.99$',(34,0.15))
 
-print('y = (',round(result0.slope,4),' ± ',round(result0.stderr,4),')x + (',round(result0.intercept,4),' ± ',round(result0.intercept_stderr,4),')',sep='')
-print('y = (',round(result1.slope,4),' ± ',round(result1.stderr,4),')x + (',round(result1.intercept,3),' ± ',round(result1.intercept_stderr,3),')',sep='')
-print('y = (',round(result2.slope,4),' ± ',round(result2.stderr,4),')x + (',round(result2.intercept,3),' ± ',round(result2.intercept_stderr,3),')',sep='')
-print('y = (',round(result3.slope,5),' ± ',round(result3.stderr,5),')x + (',round(result3.intercept,3),' ± ',round(result3.intercept_stderr,3),')',sep='')
+# print('y = (',round(result0.slope,4),' ± ',round(result0.stderr,4),')x + (',round(result0.intercept,4),' ± ',round(result0.intercept_stderr,4),')',sep='')
+# print('y = (',round(result1.slope,4),' ± ',round(result1.stderr,4),')x + (',round(result1.intercept,3),' ± ',round(result1.intercept_stderr,3),')',sep='')
+# print('y = (',round(result2.slope,4),' ± ',round(result2.stderr,4),')x + (',round(result2.intercept,3),' ± ',round(result2.intercept_stderr,3),')',sep='')
+# print('y = (',round(result3.slope,5),' ± ',round(result3.stderr,5),')x + (',round(result3.intercept,3),' ± ',round(result3.intercept_stderr,3),')',sep='')
 
-print('R² = ',round(result0.rvalue**2,4),sep='')
-print('R² = ',round(result1.rvalue**2,4),sep='')
-print('R² = ',round(result2.rvalue**2,4),sep='')
-print('R² = ',round(result3.rvalue**2,4),sep='')
+# print('R² = ',round(result0.rvalue**2,4),sep='')
+# print('R² = ',round(result1.rvalue**2,4),sep='')
+# print('R² = ',round(result2.rvalue**2,4),sep='')
+# print('R² = ',round(result3.rvalue**2,4),sep='')
+
 
 ###############################################
 
@@ -220,5 +243,3 @@ plt.scatter(t,K ,s=0.5,label='Energia cinètica')
 plt.ylabel('$E(J)$')
 plt.xlabel('$t(s)$')
 plt.legend(loc='best')
-
-plt.show()
