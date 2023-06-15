@@ -108,24 +108,25 @@ representa_perfil(x,y,np.transpose(modulo),title='$Módulo\ del\ campo\ magnéti
 
 
 
-""" DISTRIBUCIÓN CUADRADA DE MOMENTOS MAGNÉTICOS """
-N = 100
+""" DISTRIBUCIÓN RETICULAR DE MOMENTOS MAGNÉTICOS """
+#Parametrización de un círculo
+N = 51
 x=np.linspace(-L,L,N)
 y=np.linspace(-L,L,N) 
 z=np.linspace(-L,L,N)
 X, Y, Z = np.meshgrid(x, y)[0], np.meshgrid(x, y)[1], np.meshgrid(x, z)[1]
 B = np.zeros((3,N,N))
-t = np.linspace(0,2*np.pi,1000)
+t = np.linspace(0,2*np.pi,3600)
 for i in range(len(t)):
-    r0 = (2*np.cos(t[i]),0,2*np.sin(t[i]))
-    B[0] += dipolo(I,(X,Y,Z), R, r0=r0)[0]
-    B[1] += dipolo(I,(X,Y,Z), R, r0=r0)[1]
-    B[2] += dipolo(I,(X,Y,Z), R, r0=r0)[2]
+    r0 = (1/2*np.cos(t[i]),0,2*np.sin(t[i]))
+    B[0] += dipolo(I, (X,Y,Z), 2*R, r0=r0)[0]
+    B[1] += dipolo(I, (X,Y,Z), 2*R, r0=r0)[1]
+    B[2] += dipolo(I, (X,Y,Z), 2*R, r0=r0)[2]
         
 fig = plt.figure(figsize=(10,10))
 color = 2*np.log(np.hypot(B[0],B[2]))
-plt.streamplot(X,Y,B[0],B[1],color=color,linewidth=1,cmap=plt.cm.cool,density=1.5,arrowstyle='->',arrowsize=1.5)
+plt.streamplot(X,Z,B[0],B[1],color=color,linewidth=1,cmap=plt.cm.seismic,density=2.5,arrowstyle='->',arrowsize=1.5)
 
-plt.title("Campo Magnético distribución cuadrada")
+plt.title("Campo Magnético distribución reticular")
 
 plt.show()
