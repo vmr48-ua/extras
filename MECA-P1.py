@@ -3,32 +3,8 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 from scipy.integrate import odeint
 
-# Parámetros
-L1 = 0.1  # longitud del péndulo 1
-L2 = 0.1  # longitud del péndulo 2
-L3 = 0.1  # longitud del péndulo 3
-m1 = 1.0  # masa del péndulo 1
-m2 = 1.0  # masa del péndulo 2
-m3 = 1.0  # masa del péndulo 3
-g = 9.81  # aceleración de la gravedad
-tf = 10.0  # tiempo de simulación
-m123 = m1 + m2 + m3
-
-# Ángulos iniciales en grados
-theta1_0_deg = 120
-theta2_0_deg = -10
-theta3_0_deg = 30
-# Ángulos iniciales en radianes
-theta1_0 = theta1_0_deg * np.pi / 180.0
-theta2_0 = theta2_0_deg * np.pi / 180.0
-theta3_0 = theta3_0_deg * np.pi / 180.0
-
-z0 = [theta1_0, theta2_0, theta3_0, 0.0, 0.0, 0.0]  # Valores iniciales (velocidades iniciales nulas)
-
-par = [L1, L2, L3, m1, m2, m3, m123, g]  # Resto de variables que necesitamos
-
 # Desarrollo y despejo la ecuación de Euler-Lagrange
-def triple_pendulum(z, t, par, c1, c2, c3):
+def triple_pendulum(z, t, par):
     z1, z2, z3, z4, z5, z6 = z  
     L1, L2, L3, m1, m2, m3, m123, g = par
     sin12 = np.sin(z1 - z2)
@@ -49,25 +25,69 @@ def triple_pendulum(z, t, par, c1, c2, c3):
         z4,
         z5,
         z6,
-        (-m2 * L1 * z42 * sin12 * cos12 + g * m2 * sinz2 * cos12 - m2 * L2 * z52 * sin12 - m123 * g * sinz1) / (L1 * m123 - m2 * L1 * coszsq) - c1 * z4,
-        (m3 * L2 * z52 * sin23 * cos23 + g * sinz1 * cos12 * m123 + L1 * z42 * sin12 * m123 - g * sinz2 * m123) / (L2 * m123 - m3 * L2 * cos23 * cos23) - c2 * z5,
-        (m3 * L3 * z62 * sin23 * cos23 + g * sinz1 * cos12 * m123 + L1 * z42 * sin12 * m123 - g * sinz3 * m123) / (L3 * m123 - m3 * L3 * cos23 * cos23) - c3 * z6
+        (-m2 * L1 * z42 * sin12 * cos12 + g * m2 * sinz2 * cos12 - m2 * L2 * z52 * sin12 - m123 * g * sinz1) / (L1 * m123 - m2 * L1 * coszsq),
+        (m3 * L2 * z52 * sin23 * cos23 + g * sinz1 * cos12 * m123 + L1 * z42 * sin12 * m123 - g * sinz2 * m123) / (L2 * m123 - m3 * L2 * cos23 * cos23),
+        (m3 * L3 * z62 * sin23 * cos23 + g * sinz1 * cos12 * m123 + L1 * z42 * sin12 * m123 - g * sinz3 * m123) / (L3 * m123 - m3 * L3 * cos23 * cos23)
     ]
     return dzdt
 
+# Parámetros
+L1 = 0.1  # longitud del péndulo 1
+L2 = 0.1  # longitud del péndulo 2
+L3 = 0.1  # longitud del péndulo 3
+m1 = 1.0  # masa del péndulo 1
+m2 = 1.0  # masa del péndulo 2
+m3 = 1.0  # masa del péndulo 3
+g = 9.81  # aceleración de la gravedad
+tf = 10.0  # tiempo de simulación
+m123 = m1 + m2 + m3
+par = [L1, L2, L3, m1, m2, m3, m123, g]  # Resto de variables que necesitamos
 nt = 10000  # número de intervalos de tiempo
 dt = tf / nt
-t = np.linspace(0, tf, nt)
 abserr = 1.0e-8
 relerr = 1.0e-6
 
-# Coeficientes de rozamiento
-c1 = 0.1  # Coeficiente de rozamiento para el péndulo 1
-c2 = 0.1  # Coeficiente de rozamiento para el péndulo 2
-c3 = 0.1  # Coeficiente de rozamiento para el péndulo 3
+##################################################################################################################################
+# ANÁLISIS DEL CAOS
+##################################################################################################################################
 
-z = odeint(triple_pendulum, z0, t, args=(par, c1, c2, c3), atol=abserr, rtol=relerr)
-plt.close('all')
+# Ángulos iniciales y finales
+th0 = np.linspace(0.0, np.pi, 200)
+thF = np.zeros_like(th0)
+
+# Integración para cada ángulo inicial
+for i in range(200):
+    theta1_0 = th0[i]
+    theta2_0 = th0[i]
+    theta3_0 = th0[i]
+    
+    z0 = [theta1_0, theta2_0, theta3_0, 0.0, 0.0, 0.0]  # Valores iniciales (velocidades iniciales nulas)
+    t = np.linspace(0, tf, nt)
+    z = odeint(triple_pendulum, z0, t, args=(par,), atol=abserr, rtol=relerr)
+    thF[i] = z[-1, 0]  # Tomamos el ángulo final del primer péndulo
+
+# Gráfico de evolución del sistema para distintos ángulos iniciales
+plt.figure()
+plt.plot(th0, thF, 'x', c='k')
+plt.xlabel('$\\theta_{\\text{inicial}}$ (rad)')
+plt.ylabel('$\\theta_{\\text{final}} $ (rad)')
+plt.title('Evolución del sistema para distintos ángulos iniciales')
+
+##################################################################################################################################
+
+# Ángulos iniciales en grados
+theta1_0_deg = 120
+theta2_0_deg = -10
+theta3_0_deg = 30
+# Ángulos iniciales en radianes
+theta1_0 = theta1_0_deg * np.pi / 180.0
+theta2_0 = theta2_0_deg * np.pi / 180.0
+theta3_0 = theta3_0_deg * np.pi / 180.0
+
+z0 = [theta1_0, theta2_0, theta3_0, 0.0, 0.0, 0.0]  # Valores iniciales (velocidades iniciales nulas)
+t = np.linspace(0, tf, nt)
+
+z = odeint(triple_pendulum, z0, t, args=(par,), atol=abserr, rtol=relerr)
 
 Llong = (L1 + L2 + L3) * 1.1
 
@@ -124,4 +144,5 @@ def animate(i):
     return bob1, bob2, bob3, line1, line2, line3, line4, time_text
 
 anim = animation.FuncAnimation(fig, animate, init_func=init, frames=nt, interval=20, blit=True)
+
 plt.show()
