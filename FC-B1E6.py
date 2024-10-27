@@ -285,8 +285,8 @@ def ejercicioVI() -> None:
             ax2.legend(loc='lower right')
             plt.show()
 
-    #generar_animaciones(resultados)
-    generar_animaciones_por_separado(resultados, 1000) # Se usó para el informe
+    generar_animaciones(resultados)
+    #generar_animaciones_por_separado(resultados, 1000) # Se usó para el informe
 
 def ejercicioVI_parteB() -> None:
     #####################################################################################
